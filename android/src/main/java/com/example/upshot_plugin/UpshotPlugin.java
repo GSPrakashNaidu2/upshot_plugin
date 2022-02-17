@@ -4,8 +4,11 @@ import android.app.Activity;
 
 import androidx.annotation.NonNull;
 
+import com.brandkinesis.BKProperties;
 import com.brandkinesis.BrandKinesis;
 import com.brandkinesis.callback.BKAuthCallback;
+
+import java.util.HashMap;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
@@ -26,7 +29,7 @@ public class UpshotPlugin implements FlutterPlugin, MethodCallHandler {
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "upshot_plugin");
-    channel.setMethodCallHandler(new UpshotPlugin(this.UpshotPluginRegister(flutterPluginBinding.getApplicationContext(), )));
+    channel.setMethodCallHandler(this);
   }
 
   public void UpshotPluginRegister(Activity activity, MethodChannel methodChannel){
@@ -39,7 +42,8 @@ public class UpshotPlugin implements FlutterPlugin, MethodCallHandler {
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
     if (call.method.equals("getPlatformVersion")) {
       result.success("Android " + android.os.Build.VERSION.RELEASE);
-    } else if(call.method.equals("")){
+    } else if(call.method.equals("getSomething")){
+      result.success("Got Something");
 //      brandKinesis.initialiseBrandKinesis(context, new BKAuthCallback(){
 //        @Override
 //        public void onAuthenticationError(String s) {
@@ -51,7 +55,15 @@ public class UpshotPlugin implements FlutterPlugin, MethodCallHandler {
 //
 //        }
 //      });
-    } else {
+    } else if(call.method.equals("createEvent")){
+      HashMap<String, Object> data = new HashMap<>();
+      data.put(BrandKinesis.BK_CURRENT_PAGE, "MainScreen");
+
+      BrandKinesis bkInstance = BrandKinesis.getBKInstance();
+      String eventID = bkInstance.createEvent(BKProperties.BKPageViewEvent.NATIVE, data, true);
+      result.success("Event Id is: " + eventID);
+    }
+    else {
       result.notImplemented();
     }
   }
